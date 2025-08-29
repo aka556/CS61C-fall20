@@ -1,1 +1,1 @@
-# fa20-lab
+# There are cs61c fall20 labs
