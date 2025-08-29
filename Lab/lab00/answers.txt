@@ -1,4 +1,19 @@
-1.
-2.
-3.
-4.
+first_set_command_1: grep
+first_set_command_2: ag/ack/rg
+
+second_set_command_1: ps
+second_set_command_2: top/pidof/prep
+
+third_set_command: kill/killall/pkill/xkill
+
+fouth_set_command: diff
+
+1. ls
+2. mv
+3. chmod
+4. pwd
+5. ping
+6. find
+7. ps
+8. exit
+9. diff
