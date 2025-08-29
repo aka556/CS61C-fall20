@@ -1,0 +1,21 @@
+{
+  "configurations": [
+    {
+      "name": "windows-gcc-x64",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "D:/cxdownload/mingw64/include",
+        "D:/cxdownload/mingw64/x86_64-w64-mingw32/include",
+        "D:/cxdownload/mingw64/lib/gcc/x86_64-w64-mingw32/8.1.0/include"
+      ],
+      "compilerPath": "D:/cxdownload/mingw64/bin/gcc.exe",
+      "cStandard": "${default}",
+      "cppStandard": "${default}",
+      "intelliSenseMode": "windows-gcc-x64",
+      "compilerArgs": [
+        ""
+      ]
+    }
+  ],
+  "version": 4
+}
