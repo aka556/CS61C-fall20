@@ -1,9 +1,10 @@
-1.
-2.
-3.
-4.
-5.
-6.
-7.
-8.
-9.
+1. answer: There are two ways to set the arguments, one is set args then use agg1, arg2, ..., the other is run arg1, arg2, ...
+2. answer: Use the command break, (i.e. break program.c:<number>, means make a break at <number> line in program.c), other way is break main,
+    (means set the break at the enter of function main)
+3. answer: Use the command step
+4. answer: Use the command next
+5. answer: Use the command continue
+6. answer: Use the command print <variable>
+7. answer: Use the command display <variable>
+8. answer: Use the command info locals
+9. answer: Use the command q
