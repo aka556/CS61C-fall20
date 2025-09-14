@@ -5,7 +5,7 @@
 ** DESCRIPTION: CS61C Fall 2020 Project 1
 **
 ** AUTHOR:      Justin Yokota - Starter Code
-**				YOUR NAME HERE
+**				xiaoyu - finish the code
 **
 **
 ** DATE:        2020-08-23
@@ -23,6 +23,52 @@
 Color *evaluateOneCell(Image *image, int row, int col, uint32_t rule)
 {
 	//YOUR CODE HERE
+	uint32_t liveNeighbors = 0;
+	int rows = image->rows;
+	int cols = image->cols;
+
+	// current cell state
+	Color cell = image->image[row][col];
+	int isAlive = cell.R || cell.G || cell.B;
+
+	// check all 8 neighbors
+	for (int i = -1; i <= 1; i++) {
+		for (int j = -1; j <= 1; j++) {
+			if (i == 0 && j == 0) continue; // skip the cell itself
+			int neighborRow = (row + i + rows) % rows; // wrap around
+			int neighborCol = (col + j + cols) % cols; // wrap around
+			Color neighbor = image->image[neighborRow][neighborCol];
+			if (neighbor.R || neighbor.G || neighbor.B) {
+				liveNeighbors++;
+			}
+		}
+	}
+
+	// check the state
+	int newAlive;
+	if (isAlive) {
+		newAlive = (rule >> (liveNeighbors + 9)) & 1;
+	} else {
+		newAlive = (rule >> liveNeighbors) & 1;
+	}
+
+	// allocate new color
+	Color *newColor = malloc(sizeof(Color));
+	if (newColor == NULL) {
+		fprintf(stderr, "Memory allocation failed\n");
+		exit(-1);
+	}
+
+	if (newAlive) {
+		newColor->R = 255;
+		newColor->G = 255;
+		newColor->B = 255;
+	} else {
+		newColor->R = 0;
+		newColor->G = 0;
+		newColor->B = 0;
+	}
+	return newColor;
 }
 
 //The main body of Life; given an image and a rule, computes one iteration of the Game of Life.
@@ -30,6 +76,47 @@ Color *evaluateOneCell(Image *image, int row, int col, uint32_t rule)
 Image *life(Image *image, uint32_t rule)
 {
 	//YOUR CODE HERE
+	Image *newImage = malloc(sizeof(Image));
+	if (newImage == NULL) {
+		fprintf(stderr, "Memory allocation failed\n");
+		exit(-1);
+	}
+
+	newImage->rows = image->rows;
+	newImage->cols = image->cols;
+	newImage->image = malloc(newImage->rows * sizeof(Color *));
+	if (newImage->image == NULL) {
+		fprintf(stderr, "Memory allocation failed\n");
+		free(newImage);
+		exit(-1);
+	}
+
+	for (uint32_t i = 0; i < newImage->rows; i++) {
+		newImage->image[i] = malloc(newImage->cols * sizeof(Color));
+		if (newImage->image[i] == NULL) {
+			fprintf(stderr, "Memory allocation failed\n");
+			for (uint32_t k = 0; k < i; k++) {
+				free(newImage->image[k]);
+			}
+			free(newImage->image);
+			free(newImage);
+			exit(-1);
+		}
+		for (uint32_t j = 0; j < newImage->cols; j++) {
+			Color *newColor = evaluateOneCell(image, i, j, rule);
+			if (newColor == NULL) {
+				for (uint32_t k = 0; k <= i; k++) {
+					free(newImage->image[k]);
+				}
+				free(newImage->image);
+				free(newImage);
+				exit(-1);
+			}
+			newImage->image[i][j] = *newColor;
+			free(newColor);
+		}
+	}
+	return newImage;
 }
 
 /*
@@ -50,4 +137,39 @@ You may find it useful to copy the code from steganography.c, to start.
 int main(int argc, char **argv)
 {
 	//YOUR CODE HERE
+	if (argc != 3) {
+		printf("usage: ./gameOfLife filename rule\n");
+		printf("filename is an ASCII PPM file (type P3) with maximum value 255.\n");
+		printf("rule is a hex number beginning with 0x; Life is 0x1808.\n");
+		exit(-1);
+	}
+
+	char *filename = argv[1];
+	char *ruleStr = argv[2];
+
+	// check the filename is .ppm
+	// if (filename == NULL || strlen(filename) < 4 || strcmp(filename + strlen(filename) - 4, ".ppm") != 0) {
+	// 	fprintf(stderr, "Invalid filename. Must end with .ppm\n");
+	// 	exit(-1);
+	// }
+
+	// if (ruleStr == NULL || strlen(ruleStr) < 3 || ruleStr[0] != '0' || ruleStr[1] != 'x') {
+	// 	fprintf(stderr, "Invalid rule format. Must be a hex number starting with 0x\n");
+	// 	exit(-1);
+	// }
+
+	Image *fp = readData(filename);
+	if (fp == NULL) exit(-1);
+
+	uint32_t rule = (uint32_t)strtol(ruleStr, NULL, 16);
+	Image *newImage = life(fp, rule);
+	if (newImage == NULL) {
+		freeImage(fp);
+		exit(-1);
+	}
+
+	writeData(newImage);
+	freeImage(fp);
+	freeImage(newImage);
+	return 0;
 }
