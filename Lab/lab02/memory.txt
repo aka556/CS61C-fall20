@@ -1,0 +1,7 @@
+Q1: Why the function bad_vector_new() is bad?
+
+Because this function not check the struct v, may be v is NULL, and don't free memory
+
+Q2: Why the function also_bad_vector_new() is also bad?
+
+The function is value copy and don't free memory
