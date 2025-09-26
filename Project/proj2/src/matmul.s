@@ -25,82 +25,89 @@
 # =======================================================
 matmul:
 
-    # Error checks
-    
-    # check m0 (a1, a2) dimensions
-    ble a1, zero, exit_72   # if height m0 < 1
-    ble a2, zero, exit_72   # if width m0 < 1
-
-    # check m1 (a4, a5) dimensions
-    ble a4, zero, exit_73   # if height m1 < 1
-    ble a5, zero, exit_73   # if width m1 < 1
-
-    # check if width m0 == height m1
-    bne a2, a4, exit_74   # if width m0 != height m1
-
+     # Error checks
+	ble a1, zero, exit_72
+    ble a2, zero, exit_72
+    ble a4, zero, exit_73
+    ble a5, zero, exit_73
+	bne a2, a4, exit_74
     # Prologue
-    li t0, 0              # i = 0 (row index m0)
-
+    addi sp, sp, -32
+    sw s0, 0(sp)
+    sw s1, 4(sp)
+    sw s2, 8(sp)
+    sw s3, 12(sp)
+    sw s4, 16(sp)
+    sw s5, 20(sp)
+    sw s6, 24(sp)
+    sw ra, 28(sp)
+    mv s0, a0
+    mv s1, a1
+    mv s2, a2
+    mv s3, a3
+    mv s4, a4
+    mv s5, a5
+    mv s6, a6
+    
+	# init
+    li t0, 0 # i = 0
+ebreak
 outer_loop_start:
-    bge t0, a1, outer_loop_end  # if i == height m0, end outer loop
-
-    li t1, 0              # j = 0 (column index m1)
-
-
-
+	li t1, 0 # j = 0
 inner_loop_start:
-    bge t1, a5, inner_loop_end  # if j == width m1, end inner loop
-
-    mul t2, t0, a2
-    slli t2, t2, 2
-    add t2, a0, t2      # t2 = &m0[i][0]
-
-    # compute col_ptr = &m1[0][j]
-    slli t3, t1, 2
-    add t3, a3, t3      # t3 = &m1[0][j]
-
-    mv a0, t2         # a0 = &m0[i][0]
-    mv a1, t3         # a1 = &m1[0][j
-    mv a2, a2         # a2 = width m0 = height m1
-    li a3, 1          # stride m0 = 1
-    mv a4, a5         # stride m1 = width m1
-    jal dot           # call dot(&m0[i][0], &m1[0][j], width m0, 1, width m1)
-
-    # store result in d[i][j]
-    mul t4, t0, a5
-    add t4, t4, t1
-    slli t4, t4, 2
-    add t4, a6, t4      # t4 = &d[i][j]
-    sw a0, 0(t4)        # d[i][j] = dot(...)
-
-    addi t1, t1, 1       # j++
+	mv a0, s0
+    li t2, 4
+    mul t2, t2, t1
+    add a1, s3, t2
+    mv a2, s2
+    li a3, 1
+    mv a4, s5
+    
+    # prologue
+	addi sp, sp, -8
+    sw t0, 0(sp)
+    sw t1, 4(sp)
+    
+    jal dot
+ebreak
+    sw a0, 0(s6)
+    addi s6, s6, 4
+    
+    # epilogue
+    lw t0, 0(sp)
+    lw t1, 4(sp)
+	addi sp, sp, 8
+    
+    addi t1, t1, 1 # j++
+    beq t1, s5, inner_loop_end
     j inner_loop_start
-
-
 inner_loop_end:
-    addi t0, t0, 1       # i++
+	addi t0, t0, 1 # i++
+    beq t0, s1, outer_loop_end
+	li t2, 4
+    mul t2, t2, s2
+    add s0, s0, t2
     j outer_loop_start
-
-
 outer_loop_end:
 
-
     # Epilogue
-    
-    
+    lw s0, 0(sp)
+    lw s1, 4(sp)
+    lw s2, 8(sp)
+    lw s3, 12(sp)
+    lw s4, 16(sp)
+    lw s5, 20(sp)
+    lw s6, 24(sp)
+    lw ra, 28(sp)
+    addi sp, sp, 32
     ret
 
 exit_72:
-    li a0, 72
-    li a7, 93
-    ecall
-
+    li a1, 72
+    j exit2
 exit_73:
-    li a0, 73
-    li a7, 93
-    ecall
-
+	li a1, 73
+    j exit2
 exit_74:
-    li a0, 74
-    li a7, 93
-    ecall
+	li a1, 74
+    j exit2

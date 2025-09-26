@@ -181,15 +181,19 @@ class TestReadMatrix(TestCase):
         cols = t.array([-1])
 
         # load the addresses to the output parameters into the argument registers
-        raise NotImplementedError("TODO")
         # TODO
-
+        t.input_array("a1", rows)
+        t.input_array("a2", cols)
         # call the read_matrix function
         t.call("read_matrix")
 
         # check the output from the function
         # TODO
-
+        t.check_array(rows, [3])
+        t.check_array(cols, [3])
+        # check that the returned array contains the correct values
+        # TODO
+        t.check_array_pointer("a0", [1, 2, 3, 4, 5, 6, 7, 8, 9])
         # generate assembly and run it through venus
         t.execute(fail=fail, code=code)
 
@@ -209,8 +213,11 @@ class TestWriteMatrix(TestCase):
         # load output file name into a0 register
         t.input_write_filename("a0", outfile)
         # load input array and other arguments
-        raise NotImplementedError("TODO")
         # TODO
+        array = t.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        t.input_array("a1", array)  # input array
+        t.input_scalar("a2", 3)     # rows
+        t.input_scalar("a3", 3)     # cols
         # call `write_matrix` function
         t.call("write_matrix")
         # generate assembly and run it through venus

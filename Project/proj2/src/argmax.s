@@ -58,5 +58,4 @@ return_zero:
     
 exit_77:
     li a0, 77
-    li a7, 93
-    ecall
+    jal exit2

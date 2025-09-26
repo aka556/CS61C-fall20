@@ -60,10 +60,8 @@ loop_end:
 
 exit_75:
     li a0, 75
-    li a7, 93
-    ecall
+    jal exit2
 
 exit_76:
     li a0, 76
-    li a7, 93
-    ecall
+    jal exit2

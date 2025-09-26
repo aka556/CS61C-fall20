@@ -25,16 +25,82 @@
 write_matrix:
 
     # Prologue
+    addi sp, sp, -20
+    sw s0, 0(sp)
+    sw s1, 4(sp)
+    sw s2, 8(sp)
+    sw s3, 12(sp)
+    sw ra, 16(sp)
+    mv s0, a0   # filename
+    mv s1, a1   # matrix
+    mv s2, a2   # rows
+    mv s3, a3   # columns
 
+    # open file
+    mv a1, s0   # argument a1 is filename
+    li a2, 1    # argument a2 is mode "w", 1 is "w"
+    jal fopen
+    li t0, -1
+    li t1, 93   # error code 93
+    beq a0, t0, fail    # this a0 is the return value of fopen
 
+    mv s0, a0   # file descriptor
 
+    # write rows
+    mv a1, s0
+    addi sp, sp, -4
+    sw s2, 0(sp)   # store rows on stack
+    mv a2, sp
+    li a3, 1
+    li a4, 4
+    jal fwrite
+    li t0, 1
+    li t1, 94
+    bne a0, t0, fail
 
+    # write columns
+    mv a1, s0
+    addi sp, sp, -4
+    sw s3, 0(sp)   # store columns on stack
+    mv a2, sp
+    li a3, 1
+    li a4, 4
+    jal fwrite
+    li t0, 1
+    li t1, 94
+    bne a0, t0, fail
 
+    addi sp, sp, 8  # recover stack pointer
 
+    # write matrix to file
+    mv a1, s0
+    mv a2, s1,
+    mul a3, s2, s3
+    li a4, 4
+    jal fwrite
+    mul t0, s2, s3
+    li t1, 94
+    bne a0, t0, fail
 
-
+    # close file
+    mv a1, s0
+    jal fclose
+    li t0, -1
+    li t1, 95
+    beq a0, t0, fail
 
     # Epilogue
-
+    # restore registers and return
+    lw s0, 0(sp)
+    lw s1, 4(sp)
+    lw s2, 8(sp)
+    lw s3, 12(sp)
+    lw ra, 16(sp)
+    addi sp, sp, 20
 
     ret
+
+fail:
+    li a0, 17
+    mv a1, t1
+    ecall
