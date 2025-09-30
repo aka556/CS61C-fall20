@@ -66,21 +66,22 @@ map:
     # are modified by the callees, even when we know the content inside the functions 
     # we call. this is to enforce the abstraction barrier of calling convention.
 mapLoop:
-    add t1, s0, x0      # load the address of the array of current node into t1
+    lw t1, 0(s0)        # load the address of the array of current node into t1 // bug4
     lw t2, 4(s0)        # load the size of the node's array into t2
 
-    add t1, t1, t0      # offset the array address by the count
-    lw a0, 0(t1)        # load the value at that address into a0
+    slli t3, t0, 2      # offset the array address by the count // bug2, use temp register
+    add t4, t1, t3
+    lw a0, 0(t4)        # load the value at that address into a0
 
     jalr s1             # call the function on that value.
 
-    sw a0, 0(t1)        # store the returned value back into the array
+    sw a0, 0(t4)        # store the returned value back into the array // bug3
     addi t0, t0, 1      # increment the count
     bne t0, t2, mapLoop # repeat if we haven't reached the array size yet
 
-    la a0, 8(s0)        # load the address of the next node into a0
-    lw a1, 0(s1)        # put the address of the function back into a1 to prepare for the recursion
-
+    lw a0, 8(s0)        # load the address of the next node into a0 // bug1
+    add a1, s1, x0      # put the address of the function back into a1 to prepare for the recursion
+    # lw, a1, 0(s1)     this is wrong, s1 already has the function address, easy to cause memory access error
     jal  map            # recurse
 done:
     lw s0, 8(sp)
