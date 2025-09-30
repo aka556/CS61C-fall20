@@ -77,6 +77,10 @@ main:
 # Think: why might having a1 be useful?
 f:
     # YOUR CODE GOES HERE!
+    addi t0, a0, 3   # t0 = a0 + 3, change the input range from [-3,3] to [0,6]
+    slli t0, t0, 2   # t0 = t0 * 4, each word is 4 bytes
+    add t0, a1, t0   # t0 = address of output[t0]
+    lw a0, 0(t0)     # load the value from output[t0] into a0
 
     jr ra               # Always remember to jr ra after your function!
 

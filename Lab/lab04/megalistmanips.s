@@ -81,7 +81,7 @@ mapLoop:
 
     lw a0, 8(s0)        # load the address of the next node into a0 // bug1
     add a1, s1, x0      # put the address of the function back into a1 to prepare for the recursion
-    # lw, a1, 0(s1)     this is wrong, s1 already has the function address, easy to cause memory access error
+
     jal  map            # recurse
 done:
     lw s0, 8(sp)
